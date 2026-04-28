@@ -10,7 +10,6 @@ export default function Navigation() {
   const navItems = [
     { name: "Home", href: "/", icon: Home },
     { name: "Review", href: "/review", icon: Bookmark },
-    { name: "Roadmap", href: "/roadmap", icon: Map },
   ];
 
   return (

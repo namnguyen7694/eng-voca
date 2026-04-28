@@ -62,6 +62,7 @@ export default function Flashcard({ word }: FlashcardProps) {
             </div>
 
             <div className="text-center text-sm text-slate-400 dark:text-slate-500 font-medium">Tap to flip</div>
+            <div className="absolute bottom-4 right-6 text-xs text-slate-300 dark:text-slate-600 font-bold opacity-50">#{word.id}</div>
           </div>
 
           {/* Back */}
@@ -77,6 +78,7 @@ export default function Flashcard({ word }: FlashcardProps) {
               </div>
             </div>
             <div className="text-center text-sm text-slate-400 dark:text-slate-500 font-medium mt-4">Tap to flip back</div>
+            <div className="absolute bottom-4 right-6 text-xs text-primary-200 dark:text-slate-700 font-bold opacity-50">#{word.id}</div>
           </div>
         </motion.div>
       </div>
