@@ -1,9 +1,6 @@
-import { getVocabData } from "@/lib/vocabData";
 import ReviewContent from "@/components/ReviewContent";
 
-export default async function ReviewPage() {
-  const allWords = await getVocabData();
-
+export default function ReviewPage() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header className="space-y-2">
@@ -15,7 +12,7 @@ export default async function ReviewPage() {
         </p>
       </header>
 
-      <ReviewContent allWords={allWords} />
+      <ReviewContent />
     </div>
   );
 }

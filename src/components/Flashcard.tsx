@@ -61,7 +61,9 @@ export default function Flashcard({ word }: FlashcardProps) {
             </div>
 
             <div className="text-center text-sm text-slate-400 dark:text-slate-500 font-medium">Tap to flip</div>
-            <div className="absolute bottom-4 right-6 text-xs text-slate-300 dark:text-slate-600 font-bold opacity-50">#{word.id}</div>
+            <div className="absolute bottom-4 right-6 text-xs text-slate-300 dark:text-slate-600 font-bold opacity-50">
+              #{word.id}
+            </div>
           </div>
 
           {/* Back */}
@@ -72,12 +74,18 @@ export default function Flashcard({ word }: FlashcardProps) {
               </div>
 
               <div className="bg-white/50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                <p className="text-slate-700 dark:text-slate-300 font-medium italic mb-2">&quot;{word.example_en}&quot;</p>
+                <p className="text-slate-700 dark:text-slate-300 font-medium italic mb-2">
+                  &quot;{word.example_en}&quot;
+                </p>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">{word.example_vi}</p>
               </div>
             </div>
-            <div className="text-center text-sm text-slate-400 dark:text-slate-500 font-medium mt-4">Tap to flip back</div>
-            <div className="absolute bottom-4 right-6 text-xs text-primary-200 dark:text-slate-700 font-bold opacity-50">#{word.id}</div>
+            <div className="text-center text-sm text-slate-400 dark:text-slate-500 font-medium mt-4">
+              Tap to flip back
+            </div>
+            <div className="absolute bottom-4 right-6 text-xs text-primary-200 dark:text-slate-700 font-bold opacity-50">
+              #{word.id}
+            </div>
           </div>
         </motion.div>
       </div>

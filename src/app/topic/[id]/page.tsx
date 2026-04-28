@@ -9,6 +9,7 @@ export default async function TopicPage({
   params: Promise<{ id: string }>;
 }) {
   const resolvedParams = await params;
+  console.log("resolvedParams", resolvedParams);
   const words = getWordsByTopic(resolvedParams.id);
   const topicName = getTopicNameById(resolvedParams.id);
 

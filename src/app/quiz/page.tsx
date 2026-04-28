@@ -1,11 +1,8 @@
-import { getVocabData } from "@/lib/vocabData";
 import QuizContent from "@/components/QuizContent";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export default function QuizPage() {
-  const allWords = getVocabData();
-
   return (
     <div className="space-y-6 h-full flex flex-col">
       <header className="flex items-center space-x-4">
@@ -26,7 +23,7 @@ export default function QuizPage() {
       </header>
 
       <div className="flex-grow">
-        <QuizContent allWords={allWords} />
+        <QuizContent />
       </div>
     </div>
   );

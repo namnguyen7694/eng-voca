@@ -1,11 +1,8 @@
-import { getVocabData } from "@/lib/vocabData";
 import DailyStudyContent from "@/components/DailyStudyContent";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export default function DailyStudyPage() {
-  const allWords = getVocabData();
-
   return (
     <div className="space-y-6 h-full flex flex-col">
       <header className="flex items-center space-x-4">
@@ -26,7 +23,7 @@ export default function DailyStudyPage() {
       </header>
 
       <div className="flex-grow">
-        <DailyStudyContent allWords={allWords} />
+        <DailyStudyContent />
       </div>
     </div>
   );

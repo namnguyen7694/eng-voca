@@ -1,29 +1,29 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { VocabWord } from "@/types/vocab";
 import { useVocabStore } from "@/store/useVocabStore";
 import FlashcardDeck from "./FlashcardDeck";
 import { Bookmark, XCircle } from "lucide-react";
 
-export default function ReviewContent({ allWords }: { allWords: VocabWord[] }) {
+export default function ReviewContent() {
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<"saved" | "mistakes">("saved");
+  const [activeTab, setActiveTab] = useState<"saved" | "wrong">("saved");
 
-  const savedIds = useVocabStore((state: { saved: number[] }) => state.saved);
-  const wrongIds = useVocabStore((state: { wrongIds: number[] }) => state.wrongIds);
+  const savedIds = useVocabStore((state) => state.saved);
+  const wrongIds = useVocabStore((state) => state.wrongIds);
+  const getWordsByType = useVocabStore((state) => state.getWordsByType);
 
   useEffect(() => {
     // eslint-disable-next-line
     setMounted(true);
     if (typeof window !== "undefined" && window.location.search.includes("tab=mistakes")) {
-      setActiveTab("mistakes");
+      setActiveTab("wrong");
     }
   }, []);
 
   const reviewWords = useMemo(() => {
-    return allWords.filter((word) => (activeTab === "saved" ? savedIds.includes(word.id) : wrongIds.includes(word.id)));
-  }, [allWords, activeTab, savedIds, wrongIds]);
+    return getWordsByType(activeTab);
+  }, [activeTab, getWordsByType]);
 
   if (!mounted) {
     return <div className="h-64 flex items-center justify-center">Loading...</div>;
@@ -48,11 +48,11 @@ export default function ReviewContent({ allWords }: { allWords: VocabWord[] }) {
         </button>
         <button
           onClick={() => {
-            setActiveTab("mistakes");
+            setActiveTab("wrong");
             window.history.replaceState(null, "", "/review?tab=mistakes");
           }}
           className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 text-sm font-semibold rounded-lg transition-all ${
-            activeTab === "mistakes"
+            activeTab === "wrong"
               ? "bg-white dark:bg-slate-700 shadow text-danger-500"
               : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
           }`}
@@ -64,7 +64,7 @@ export default function ReviewContent({ allWords }: { allWords: VocabWord[] }) {
 
       {reviewWords.length > 0 ? (
         <div className="space-y-4">
-          {activeTab === "mistakes" && (
+          {activeTab === "wrong" && (
             <p className="text-center text-sm text-slate-500 max-w-md mx-auto">
               These are the words you got wrong in the Quick Quiz. Mark them as &quot;Learned&quot; when you have
               mastered them to remove them from this list.

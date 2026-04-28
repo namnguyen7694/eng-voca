@@ -6,20 +6,17 @@ import { VocabWord } from "@/types/vocab";
 import { useVocabStore } from "@/store/useVocabStore";
 import { Timer, CheckCircle2, XCircle, RotateCcw } from "lucide-react";
 import Link from "next/link";
+import { generateQuizQuestions, QuizQuestion, getVocabData } from "@/lib/vocabData";
 
 type QuizState = "setup" | "playing" | "result";
 
-interface Question {
-  word: VocabWord;
-  options: string[];
-  correctAnswer: string;
-}
-
-export default function QuizContent({ allWords }: { allWords: VocabWord[] }) {
+export default function QuizContent() {
   const [mounted, setMounted] = useState(false);
   const [quizState, setQuizState] = useState<QuizState>("setup");
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [onlyUnlearned, setOnlyUnlearned] = useState(false);
+  const getWordsByType = useVocabStore((state) => state.getWordsByType);
 
   // Timer state
   const [timeLeft, setTimeLeft] = useState(15);
@@ -88,28 +85,16 @@ export default function QuizContent({ allWords }: { allWords: VocabWord[] }) {
   }
 
   const generateQuestions = (amount: number) => {
-    // 1. Pick random words for questions
-    const shuffledWords = [...allWords].sort(() => Math.random() - 0.5);
-    const selectedWords = shuffledWords.slice(0, amount);
+    const allWords = getVocabData();
+    const wordsToQuiz = onlyUnlearned ? getWordsByType("unLearned") : allWords;
 
-    // 2. Generate options for each question
-    const generatedQuestions: Question[] = selectedWords.map((word) => {
-      // Get 3 random distractor meanings from OTHER words
-      const distractors = allWords
-        .filter((w) => w.id !== word.id && w.meaning_vi !== word.meaning_vi)
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3)
-        .map((w) => w.meaning_vi);
+    if (wordsToQuiz.length === 0) {
+      alert("Great job! You have learned all words. Uncheck the option to test all words.");
+      return;
+    }
 
-      // Combine correct and distractors, then shuffle
-      const options = [word.meaning_vi, ...distractors].sort(() => Math.random() - 0.5);
-
-      return {
-        word,
-        options,
-        correctAnswer: word.meaning_vi,
-      };
-    });
+    const actualAmount = Math.min(amount, wordsToQuiz.length);
+    const generatedQuestions = generateQuizQuestions(wordsToQuiz, allWords, actualAmount);
 
     setQuestions(generatedQuestions);
     setQuizState("playing");
@@ -165,11 +150,24 @@ export default function QuizContent({ allWords }: { allWords: VocabWord[] }) {
             <button
               key={amount}
               onClick={() => generateQuestions(amount)}
-              className="p-4 glass rounded-2xl border border-white/20 shadow-sm hover:shadow-md hover:bg-orange-500 hover:text-white hover:border-orange-500 dark:hover:bg-orange-600 transition-all font-bold text-lg text-slate-700 dark:text-slate-200"
+              className="p-4 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md rounded-2xl border border-white/20 shadow-sm hover:shadow-md hover:bg-orange-500 hover:text-white hover:border-orange-500 dark:hover:bg-orange-600 transition-all font-bold text-lg text-slate-700 dark:text-slate-200"
             >
               {amount}
             </button>
           ))}
+        </div>
+
+        <div className="flex items-center justify-center space-x-2 pt-4">
+          <input
+            type="checkbox"
+            id="onlyUnlearned"
+            checked={onlyUnlearned}
+            onChange={(e) => setOnlyUnlearned(e.target.checked)}
+            className="w-4 h-4 rounded text-orange-500 focus:ring-orange-500 bg-slate-100 border-slate-300 dark:bg-slate-700 dark:border-slate-600"
+          />
+          <label htmlFor="onlyUnlearned" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+            Only test unlearned words
+          </label>
         </div>
       </div>
     );
