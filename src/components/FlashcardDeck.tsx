@@ -2,13 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { VocabWord } from "@/types/vocab";
-import Flashcard, { FlashcardActions } from "./Flashcard";
+import Flashcard from "./Flashcard";
+import FlashcardActions from "./FlashcardActions";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProgressBar from "./ProgressBar";
 import { useVocabStore } from "@/store/useVocabStore";
 import { AnimatePresence, motion } from "framer-motion";
 
-export default function FlashcardDeck({ words }: { words: VocabWord[] }) {
+export default function FlashcardDeck({
+  words,
+  showProgressBar = true,
+}: {
+  words: VocabWord[];
+  showProgressBar?: boolean;
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [shuffledWords, setShuffledWords] = useState<VocabWord[]>(words);
@@ -73,7 +80,7 @@ export default function FlashcardDeck({ words }: { words: VocabWord[] }) {
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
-    
+
     if (isLeftSwipe) nextCard();
     if (isRightSwipe) prevCard();
   };
@@ -84,7 +91,7 @@ export default function FlashcardDeck({ words }: { words: VocabWord[] }) {
 
   return (
     <div className="w-full max-w-lg mx-auto flex flex-col items-center">
-      <ProgressBar progress={learnedCount} total={shuffledWords.length} className="mb-8" />
+      {showProgressBar && <ProgressBar progress={learnedCount} total={shuffledWords.length} className="mb-8" />}
 
       <div className="relative w-full flex items-center justify-center min-h-96">
         {!mounted ? (
@@ -101,7 +108,7 @@ export default function FlashcardDeck({ words }: { words: VocabWord[] }) {
               <ChevronLeft size={24} />
             </button>
 
-            <div 
+            <div
               className="w-full flex justify-center overflow-hidden px-4 py-4 pb-8"
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
@@ -139,7 +146,7 @@ export default function FlashcardDeck({ words }: { words: VocabWord[] }) {
 
       {mounted && shuffledWords.length > 0 && (
         <div className="w-full px-4 relative z-10">
-          <FlashcardActions word={shuffledWords[currentIndex]} />
+          <FlashcardActions word={shuffledWords[currentIndex]} onNextCard={nextCard} />
         </div>
       )}
 

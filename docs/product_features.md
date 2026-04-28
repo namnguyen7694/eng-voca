@@ -19,7 +19,7 @@
 - [ ] **Data Scalability**: Chuyển đổi dữ liệu JSON tĩnh sang hệ thống Database (như Supabase hoặc Firebase) khi lượng từ vựng đạt mức độ lớn hơn.
 
 ### Phase 2: Tăng tính tương tác (Interactive & Gamification)
-- [ ] **Mini-games & Quizzes**: Tích hợp các trò chơi nhỏ (Multiple choice, Điền từ vào chỗ trống, Nghe và chọn) để kiểm tra kiến thức sau khi học thẻ flashcard.
+- [x] **Mini-games & Quizzes**: Đã ra mắt **Quick Quiz (Kiểm tra nhanh)** - Trắc nghiệm tính giờ 15s/câu với 4 lựa chọn, tự động tính điểm và lưu lại các từ làm sai vào danh sách Review.
 - [ ] **Streaks & Daily Goals**: Hệ thống theo dõi chuỗi ngày học tập liên tiếp và phần thưởng huy hiệu ảo để tạo động lực.
 - [ ] **Phát âm nâng cao (Advanced Audio)**: Thay vì dùng Text-to-speech mặc định của trình duyệt, sử dụng API phát âm chuẩn từ Google TTS hoặc từ điển Oxford/Cambridge.
 
