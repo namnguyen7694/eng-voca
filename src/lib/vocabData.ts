@@ -4,10 +4,14 @@ import chap2 from "../../data/chap_2.json";
 import chap3 from "../../data/chap_3.json";
 import chap4 from "../../data/chap_4.json";
 import chap5 from "../../data/chap_5.json";
+import basicLevel from "../../data/basic_level.json";
 
-const ALL_WORDS = [...chap1, ...chap2, ...chap3, ...chap4, ...chap5];
+export type VocabLevel = "low" | "high";
 
-const dataMap: Record<string, VocabWord[]> = {
+const HIGH_LEVEL_WORDS = [...chap1, ...chap2, ...chap3, ...chap4, ...chap5] as VocabWord[];
+const LOW_LEVEL_WORDS = basicLevel as VocabWord[];
+
+const highDataMap: Record<string, VocabWord[]> = {
   business_office: chap1 as VocabWord[],
   tech_innovation: chap2 as VocabWord[],
   daily_life_abstract: chap3 as VocabWord[],
@@ -15,19 +19,32 @@ const dataMap: Record<string, VocabWord[]> = {
   finance_economy: chap5 as VocabWord[],
 };
 
+// Map for low level, grouping by topic from the flat basic_level.json
+const lowDataMap: Record<string, VocabWord[]> = {};
+LOW_LEVEL_WORDS.forEach((word) => {
+  const topicKey = word.topic.toLowerCase().replaceAll(" & ", "_").replaceAll(" ", "_");
+  if (!lowDataMap[topicKey]) {
+    lowDataMap[topicKey] = [];
+  }
+  lowDataMap[topicKey].push(word);
+});
+
 export function getTopicNameById(topicId: string): string {
   return topicId
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
+
 export function getTopicKeyFromName(topicName: string): string {
   return topicName.toLowerCase().replaceAll(" & ", "_").replaceAll(" ", "_");
 }
-export function getTopics(): TopicInfo[] {
-  const topics: TopicInfo[] = [];
 
-  for (const [key, words] of Object.entries(dataMap)) {
+export function getTopics(level: VocabLevel = "high"): TopicInfo[] {
+  const topics: TopicInfo[] = [];
+  const currentMap = level === "high" ? highDataMap : lowDataMap;
+
+  for (const [key, words] of Object.entries(currentMap)) {
     topics.push({
       id: key,
       name: getTopicNameById(key),
@@ -40,14 +57,10 @@ export function getTopics(): TopicInfo[] {
   return topics;
 }
 
-export function getWordsByTopic(topicId: string): VocabWord[] {
-  console.log("getWordsByTopic topicId", topicId);
-  return dataMap[topicId] || [];
-}
-
-export function getVocabData(topicId?: string): VocabWord[] {
-  if (topicId) return getWordsByTopic(topicId);
-  return ALL_WORDS;
+export function getVocabData(topicId?: string, level: VocabLevel = "high"): VocabWord[] {
+  const currentMap = level === "high" ? highDataMap : lowDataMap;
+  if (topicId) return currentMap[topicId] || [];
+  return level === "high" ? HIGH_LEVEL_WORDS : LOW_LEVEL_WORDS;
 }
 
 export interface QuizQuestion {
@@ -56,7 +69,12 @@ export interface QuizQuestion {
   correctAnswer: string;
 }
 
-export function generateQuizQuestions(wordsToQuiz: VocabWord[], allWords: VocabWord[], amount: number): QuizQuestion[] {
+export function generateQuizQuestions(
+  wordsToQuiz: VocabWord[],
+  allWords: VocabWord[],
+  amount: number,
+  level: VocabLevel = "high",
+): QuizQuestion[] {
   // 1. Pick random words for questions
   const shuffledWords = [...wordsToQuiz].sort(() => Math.random() - 0.5);
   const selectedWords = shuffledWords.slice(0, amount);
@@ -65,13 +83,12 @@ export function generateQuizQuestions(wordsToQuiz: VocabWord[], allWords: VocabW
   return selectedWords.map((word) => {
     // Lọc các từ khác nhưng cùng chung topic
     const topicKey = getTopicKeyFromName(word.topic);
-    let distractorsPool = getWordsByTopic(topicKey).filter((w) => w.id !== word.id && w.meaning_vi !== word.meaning_vi);
-    console.log("generateQuizQuestions word", word);
-    console.log("generateQuizQuestions topicKey", topicKey);
-    console.log("generateQuizQuestions distractorsPool", distractorsPool);
+    let distractorsPool = getVocabData(topicKey, level).filter(
+      (w) => w.id !== word.id && w.meaning_vi !== word.meaning_vi,
+    );
+
     // Đề phòng trường hợp topic có quá ít từ (ít khi xảy ra với data hiện tại)
     if (distractorsPool.length < 3) {
-      console.log("generateQuizQuestions less than 3");
       const otherWords = allWords.filter((w) => w.id !== word.id && w.meaning_vi !== word.meaning_vi);
       distractorsPool = [...distractorsPool, ...otherWords];
     }

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -9,21 +10,19 @@ export default function ReviewContent() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"saved" | "wrong">("saved");
 
-  const savedIds = useVocabStore((state) => state.saved);
-  const wrongIds = useVocabStore((state) => state.wrongIds);
-  const getWordsByType = useVocabStore((state) => state.getWordsByType);
+  const { selectedLevel, getWordsByType } = useVocabStore();
+
+  const savedInCurrentLevel = useMemo(() => getWordsByType("saved"), [getWordsByType, selectedLevel]);
+  const wrongInCurrentLevel = useMemo(() => getWordsByType("wrong"), [getWordsByType, selectedLevel]);
 
   useEffect(() => {
-    // eslint-disable-next-line
     setMounted(true);
     if (typeof window !== "undefined" && window.location.search.includes("tab=mistakes")) {
       setActiveTab("wrong");
     }
   }, []);
 
-  const reviewWords = useMemo(() => {
-    return getWordsByType(activeTab);
-  }, [activeTab, getWordsByType]);
+  const reviewWords = activeTab === "saved" ? savedInCurrentLevel : wrongInCurrentLevel;
 
   if (!mounted) {
     return <div className="h-64 flex items-center justify-center">Loading...</div>;
@@ -44,7 +43,7 @@ export default function ReviewContent() {
           }`}
         >
           <Bookmark size={16} />
-          <span>Saved ({savedIds.length})</span>
+          <span>Saved ({savedInCurrentLevel.length})</span>
         </button>
         <button
           onClick={() => {
@@ -58,7 +57,7 @@ export default function ReviewContent() {
           }`}
         >
           <XCircle size={16} />
-          <span>Mistakes ({wrongIds.length})</span>
+          <span>Mistakes ({wrongInCurrentLevel.length})</span>
         </button>
       </div>
 

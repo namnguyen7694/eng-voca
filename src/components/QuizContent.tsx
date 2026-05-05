@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -16,7 +15,7 @@ export default function QuizContent() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [onlyUnlearned, setOnlyUnlearned] = useState(false);
-  const getWordsByType = useVocabStore((state) => state.getWordsByType);
+  const { selectedLevel, addWrongId, getWordsByType } = useVocabStore();
 
   // Timer state
   const [timeLeft, setTimeLeft] = useState(15);
@@ -29,8 +28,6 @@ export default function QuizContent() {
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongWords, setWrongWords] = useState<VocabWord[]>([]);
   const [timeTaken, setTimeTaken] = useState(0);
-
-  const addWrongId = useVocabStore((state) => state.addWrongId);
 
   const goToNextQuestion = () => {
     if (currentIndex < questions.length - 1) {
@@ -85,16 +82,18 @@ export default function QuizContent() {
   }
 
   const generateQuestions = (amount: number) => {
-    const allWords = getVocabData();
+    const allWords = getVocabData(undefined, selectedLevel);
     const wordsToQuiz = onlyUnlearned ? getWordsByType("unLearned") : allWords;
 
     if (wordsToQuiz.length === 0) {
-      alert("Great job! You have learned all words. Uncheck the option to test all words.");
+      alert(
+        "Great job! You have learned all words in this level. Uncheck the option to test all words or try another level.",
+      );
       return;
     }
 
     const actualAmount = Math.min(amount, wordsToQuiz.length);
-    const generatedQuestions = generateQuizQuestions(wordsToQuiz, allWords, actualAmount);
+    const generatedQuestions = generateQuizQuestions(wordsToQuiz, allWords, actualAmount, selectedLevel);
 
     setQuestions(generatedQuestions);
     setQuizState("playing");
@@ -165,7 +164,10 @@ export default function QuizContent() {
             onChange={(e) => setOnlyUnlearned(e.target.checked)}
             className="w-4 h-4 rounded text-orange-500 focus:ring-orange-500 bg-slate-100 border-slate-300 dark:bg-slate-700 dark:border-slate-600"
           />
-          <label htmlFor="onlyUnlearned" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+          <label
+            htmlFor="onlyUnlearned"
+            className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+          >
             Only test unlearned words
           </label>
         </div>
@@ -290,11 +292,9 @@ export default function QuizContent() {
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-slate-800 dark:text-white px-2">Words to review</h3>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between px-2 gap-4">
-            <p className="text-sm text-slate-500">
-              These words were answered incorrectly or timed out.
-            </p>
-            <Link 
-              href="/review?tab=mistakes" 
+            <p className="text-sm text-slate-500">These words were answered incorrectly or timed out.</p>
+            <Link
+              href="/review?tab=mistakes"
               className="px-4 py-2 bg-danger-100 text-danger-600 hover:bg-danger-200 dark:bg-danger-900/30 dark:text-danger-400 dark:hover:bg-danger-900/50 rounded-xl font-bold text-sm transition-colors text-center"
             >
               Review Mistakes

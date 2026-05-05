@@ -28,7 +28,6 @@ export default function FlashcardDeck({
   useEffect(() => {
     // Xáo trộn ngẫu nhiên mảng từ vựng (Fisher-Yates hoặc sort)
     const shuffled = [...words].sort(() => Math.random() - 0.5);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShuffledWords(shuffled);
     setMounted(true);
   }, [words]);

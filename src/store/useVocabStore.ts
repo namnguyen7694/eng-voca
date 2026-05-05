@@ -1,17 +1,19 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { VocabWord } from "@/types/vocab";
-import { getVocabData } from "@/lib/vocabData";
+import { getVocabData, VocabLevel } from "@/lib/vocabData";
 
 interface VocabState {
   learned: number[];
   saved: number[];
   wrongIds: number[];
+  selectedLevel: VocabLevel;
   toggleLearned: (id: number) => void;
   toggleSaved: (id: number) => void;
   isLearned: (id: number) => boolean;
   isSaved: (id: number) => boolean;
   addWrongId: (id: number) => void;
+  setLevel: (level: VocabLevel) => void;
   getWordsByType: (type: "saved" | "wrong" | "learned" | "unLearned") => VocabWord[];
 }
 
@@ -21,6 +23,7 @@ export const useVocabStore = create<VocabState>()(
       learned: [],
       saved: [],
       wrongIds: [],
+      selectedLevel: "high",
 
       toggleLearned: (id) =>
         set((state) => {
@@ -42,11 +45,14 @@ export const useVocabStore = create<VocabState>()(
           wrongIds: state.wrongIds.includes(id) ? state.wrongIds : [...state.wrongIds, id],
         })),
 
+      setLevel: (level) => set({ selectedLevel: level }),
+
       isLearned: (id) => get().learned.includes(id),
       isSaved: (id) => get().saved.includes(id),
 
       getWordsByType: (type) => {
-        const allWords = getVocabData();
+        const level = get().selectedLevel;
+        const allWords = getVocabData(undefined, level);
         const state = get();
         switch (type) {
           case "saved":
@@ -68,6 +74,7 @@ export const useVocabStore = create<VocabState>()(
         learned: state.learned,
         saved: state.saved,
         wrongIds: state.wrongIds,
+        selectedLevel: state.selectedLevel,
       }), // only save these fields, exclude functions
     },
   ),

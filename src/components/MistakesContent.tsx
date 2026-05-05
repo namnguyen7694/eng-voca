@@ -12,7 +12,6 @@ export default function MistakesContent({ allWords }: { allWords: VocabWord[] })
   const wrongIds = useVocabStore((state) => state.wrongIds);
 
   useEffect(() => {
-    // eslint-disable-next-line
     setMounted(true);
   }, []);
 
