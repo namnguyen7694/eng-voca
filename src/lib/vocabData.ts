@@ -4,12 +4,20 @@ import chap2 from "../../data/chap_2.json";
 import chap3 from "../../data/chap_3.json";
 import chap4 from "../../data/chap_4.json";
 import chap5 from "../../data/chap_5.json";
-import basicLevel from "../../data/basic_level.json";
+import basicChap1 from "../../data/basic_chap_1.json";
+import basicChap2 from "../../data/basic_chap_2.json";
+import basicChap3 from "../../data/basic_chap_3.json";
+import basicChap4 from "../../data/basic_chap_4.json";
+import basicChap5 from "../../data/basic_chap_5.json";
+
+export function getTopicKeyFromName(topicName: string): string {
+  return topicName.toLowerCase().replaceAll(" & ", "_").replaceAll(" ", "_");
+}
 
 export type VocabLevel = "low" | "high";
 
 const HIGH_LEVEL_WORDS = [...chap1, ...chap2, ...chap3, ...chap4, ...chap5] as VocabWord[];
-const LOW_LEVEL_WORDS = basicLevel as VocabWord[];
+const LOW_LEVEL_WORDS = [...basicChap1, ...basicChap2, ...basicChap3, ...basicChap4, ...basicChap5] as VocabWord[];
 
 const highDataMap: Record<string, VocabWord[]> = {
   business_office: chap1 as VocabWord[],
@@ -19,25 +27,20 @@ const highDataMap: Record<string, VocabWord[]> = {
   finance_economy: chap5 as VocabWord[],
 };
 
-// Map for low level, grouping by topic from the flat basic_level.json
-const lowDataMap: Record<string, VocabWord[]> = {};
-LOW_LEVEL_WORDS.forEach((word) => {
-  const topicKey = word.topic.toLowerCase().replaceAll(" & ", "_").replaceAll(" ", "_");
-  if (!lowDataMap[topicKey]) {
-    lowDataMap[topicKey] = [];
-  }
-  lowDataMap[topicKey].push(word);
-});
+// Map for low level, fixed keys for the 5 topics
+const lowDataMap: Record<string, VocabWord[]> = {
+  professional_communication: basicChap1 as VocabWord[],
+  workplace_dynamics_culture: basicChap2 as VocabWord[],
+  business_strategy_markets: basicChap3 as VocabWord[],
+  productivity_professional_growth: basicChap4 as VocabWord[],
+  analysis_critical_thinking: basicChap5 as VocabWord[],
+};
 
 export function getTopicNameById(topicId: string): string {
   return topicId
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
-}
-
-export function getTopicKeyFromName(topicName: string): string {
-  return topicName.toLowerCase().replaceAll(" & ", "_").replaceAll(" ", "_");
 }
 
 export function getTopics(level: VocabLevel = "high"): TopicInfo[] {
