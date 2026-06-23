@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { VocabWord } from "@/types/vocab";
 import { getVocabData, VocabLevel } from "@/lib/vocabData";
+import { auth } from "@/lib/firebase";
+import { loadUserProgressFromFirestore, saveUserProgressToFirestore, mergeProgress } from "@/lib/syncService";
 
 interface VocabState {
   learned: number[];
@@ -17,6 +19,7 @@ interface VocabState {
   addWrongId: (id: number) => void;
   setLevel: (level: VocabLevel) => void;
   getWordsByType: (type: "saved" | "wrong" | "learned" | "unLearned") => VocabWord[];
+  syncWithFirebase: (uid: string) => Promise<void>;
 }
 
 export const useVocabStore = create<VocabState>()(
@@ -72,6 +75,31 @@ export const useVocabStore = create<VocabState>()(
             return [];
         }
       },
+
+      syncWithFirebase: async (uid) => {
+        const localData = {
+          learned: get().learned,
+          saved: get().saved,
+          wrongIds: get().wrongIds,
+          selectedLevel: get().selectedLevel,
+        };
+
+        const remoteData = await loadUserProgressFromFirestore(uid);
+
+        if (remoteData) {
+          const merged = mergeProgress(localData, remoteData);
+          set({
+            learned: merged.learned,
+            saved: merged.saved,
+            wrongIds: merged.wrongIds,
+            selectedLevel: merged.selectedLevel as VocabLevel,
+          });
+          saveUserProgressToFirestore(uid, merged);
+        } else {
+          // If no remote data exists yet, save current local progress to remote
+          saveUserProgressToFirestore(uid, localData);
+        }
+      },
     }),
     {
       name: "vocab-storage", // name of the item in the storage (must be unique)
@@ -84,3 +112,27 @@ export const useVocabStore = create<VocabState>()(
     },
   ),
 );
+
+// Subscribe to store changes to auto-sync to Firebase
+if (typeof window !== "undefined") {
+  useVocabStore.subscribe((state, prevState) => {
+    // Only sync if the core fields have actually changed
+    const coreFieldsChanged =
+      JSON.stringify(state.learned) !== JSON.stringify(prevState.learned) ||
+      JSON.stringify(state.saved) !== JSON.stringify(prevState.saved) ||
+      JSON.stringify(state.wrongIds) !== JSON.stringify(prevState.wrongIds) ||
+      state.selectedLevel !== prevState.selectedLevel;
+
+    if (!coreFieldsChanged) return;
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      saveUserProgressToFirestore(currentUser.uid, {
+        learned: state.learned,
+        saved: state.saved,
+        wrongIds: state.wrongIds,
+        selectedLevel: state.selectedLevel,
+      });
+    }
+  });
+}
