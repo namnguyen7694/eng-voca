@@ -20,7 +20,7 @@ export default function TopicList() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {topics.map((topic) => (
-          <TopicCard key={topic.id} topic={topic} learnedCount={0} />
+          <TopicCard key={topic.id} topic={topic} learnedCount={0} level={selectedLevel} />
         ))}
       </div>
     );
@@ -34,7 +34,7 @@ export default function TopicList() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {topics.map((topic) => {
           const learnedCount = topic.wordIds.filter((id) => learnedIds.includes(id)).length;
-          return <TopicCard key={topic.id} topic={topic} learnedCount={learnedCount} />;
+          return <TopicCard key={topic.id} topic={topic} learnedCount={learnedCount} level={selectedLevel} />;
         })}
       </div>
     </>

@@ -15,7 +15,7 @@ export default function QuizContent() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [onlyUnlearned, setOnlyUnlearned] = useState(false);
-  const { selectedLevel, addWrongId, getWordsByType } = useVocabStore();
+  const { selectedLevel, addWrongId, getWordsByType, setActiveSession } = useVocabStore();
 
   // Timer state
   const [timeLeft, setTimeLeft] = useState(15);
@@ -43,7 +43,23 @@ export default function QuizContent() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    return () => {
+      setActiveSession(null);
+    };
+  }, [setActiveSession]);
+
+  useEffect(() => {
+    setQuizState("setup");
+    setActiveSession(null);
+  }, [selectedLevel, setActiveSession]);
+
+  useEffect(() => {
+    if (quizState === "playing") {
+      setActiveSession("quiz");
+    } else {
+      setActiveSession(null);
+    }
+  }, [quizState, setActiveSession]);
 
   const handleTimeout = useCallback(() => {
     setIsTimerRunning(false);

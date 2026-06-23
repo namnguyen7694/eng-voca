@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Volume2 } from "lucide-react";
 import { VocabWord } from "@/types/vocab";
+import { useVocabStore } from "@/store/useVocabStore";
 
 interface FlashcardProps {
   word: VocabWord;
@@ -11,6 +12,25 @@ interface FlashcardProps {
 
 export default function Flashcard({ word }: FlashcardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const { selectedLevel } = useVocabStore();
+
+  const isLowLevel = selectedLevel === "low";
+
+  const theme = isLowLevel 
+    ? {
+        posTag: "text-teal-600 bg-teal-100 dark:bg-teal-900/30 dark:text-teal-400",
+        audioBtn: "text-teal-500",
+        backBg: "bg-gradient-to-br from-teal-50/90 to-white/90 dark:from-slate-800/90 dark:to-slate-900/90",
+        meaning: "text-teal-600 dark:text-teal-400",
+        watermark: "text-teal-200 dark:text-slate-700",
+      }
+    : {
+        posTag: "text-primary-600 bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400",
+        audioBtn: "text-primary-500",
+        backBg: "bg-gradient-to-br from-primary-50/90 to-white/90 dark:from-slate-800/90 dark:to-slate-900/90",
+        meaning: "text-primary-600 dark:text-primary-400",
+        watermark: "text-primary-200 dark:text-slate-700",
+      };
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
@@ -36,7 +56,7 @@ export default function Flashcard({ word }: FlashcardProps) {
           {/* Front */}
           <div className="absolute w-full h-full backface-hidden glass rounded-3xl shadow-xl border border-white/20 flex flex-col justify-between p-8 bg-gradient-to-br from-white/60 to-white/30 dark:from-slate-800/60 dark:to-slate-900/40">
             <div className="flex justify-between items-start w-full">
-              <span className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-600 bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400 rounded-full">
+              <span className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full ${theme.posTag}`}>
                 {word.pos}
               </span>
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
@@ -52,7 +72,7 @@ export default function Flashcard({ word }: FlashcardProps) {
                 <span className="text-lg font-medium">{word.phonetic}</span>
                 <button
                   onClick={playAudio}
-                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-primary-500"
+                  className={`p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors ${theme.audioBtn}`}
                   aria-label="Play pronunciation"
                 >
                   <Volume2 size={20} />
@@ -67,10 +87,10 @@ export default function Flashcard({ word }: FlashcardProps) {
           </div>
 
           {/* Back */}
-          <div className="absolute w-full h-full backface-hidden glass rotate-y-180 rounded-3xl shadow-xl border border-white/20 flex flex-col justify-between p-8 bg-gradient-to-br from-primary-50/90 to-white/90 dark:from-slate-800/90 dark:to-slate-900/90">
+          <div className={`absolute w-full h-full backface-hidden glass rotate-y-180 rounded-3xl shadow-xl border border-white/20 flex flex-col justify-between p-8 ${theme.backBg}`}>
             <div className="flex-grow flex flex-col justify-center space-y-6">
               <div className="text-center">
-                <h3 className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-2">{word.meaning_vi}</h3>
+                <h3 className={`text-2xl font-bold mb-2 ${theme.meaning}`}>{word.meaning_vi}</h3>
               </div>
 
               <div className="bg-white/50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50">
@@ -83,7 +103,7 @@ export default function Flashcard({ word }: FlashcardProps) {
             <div className="text-center text-sm text-slate-400 dark:text-slate-500 font-medium mt-4">
               Tap to flip back
             </div>
-            <div className="absolute bottom-4 right-6 text-xs text-primary-200 dark:text-slate-700 font-bold opacity-50">
+            <div className={`absolute bottom-4 right-6 text-xs font-bold opacity-50 ${theme.watermark}`}>
               #{word.id}
             </div>
           </div>

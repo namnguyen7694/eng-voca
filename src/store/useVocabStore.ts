@@ -8,6 +8,8 @@ interface VocabState {
   saved: number[];
   wrongIds: number[];
   selectedLevel: VocabLevel;
+  activeSession: "daily" | "quiz" | null;
+  setActiveSession: (session: "daily" | "quiz" | null) => void;
   toggleLearned: (id: number) => void;
   toggleSaved: (id: number) => void;
   isLearned: (id: number) => boolean;
@@ -24,6 +26,9 @@ export const useVocabStore = create<VocabState>()(
       saved: [],
       wrongIds: [],
       selectedLevel: "high",
+      activeSession: null,
+
+      setActiveSession: (session) => set({ activeSession: session }),
 
       toggleLearned: (id) =>
         set((state) => {

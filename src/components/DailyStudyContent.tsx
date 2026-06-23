@@ -12,12 +12,19 @@ export default function DailyStudyContent() {
   const [customAmount, setCustomAmount] = useState<string>("");
   const [studyWords, setStudyWords] = useState<VocabWord[]>([]);
 
-  const getWordsByType = useVocabStore((state) => state.getWordsByType);
+  const { selectedLevel, setActiveSession, getWordsByType } = useVocabStore();
 
   useEffect(() => {
-    // eslint-disable-next-line
     setMounted(true);
-  }, []);
+    return () => {
+      setActiveSession(null);
+    };
+  }, [setActiveSession]);
+
+  useEffect(() => {
+    setSelectedAmount(null);
+    setActiveSession(null);
+  }, [selectedLevel, setActiveSession]);
 
   if (!mounted) {
     return <div className="h-64 flex items-center justify-center">Loading...</div>;
@@ -29,6 +36,7 @@ export default function DailyStudyContent() {
     if (unlearnedWords.length === 0) {
       setStudyWords([]);
       setSelectedAmount(amount);
+      setActiveSession("daily");
       return;
     }
 
@@ -38,6 +46,7 @@ export default function DailyStudyContent() {
 
     setStudyWords(selected);
     setSelectedAmount(amount);
+    setActiveSession("daily");
   };
 
   const handleCustomSubmit = (e: React.FormEvent) => {
@@ -55,7 +64,10 @@ export default function DailyStudyContent() {
           <p className="text-2xl text-emerald-500 font-bold mb-4">Amazing!</p>
           <p className="text-slate-600 dark:text-slate-300">You have learned all available words in the database.</p>
           <button
-            onClick={() => setSelectedAmount(null)}
+            onClick={() => {
+              setSelectedAmount(null);
+              setActiveSession(null);
+            }}
             className="mt-8 px-6 py-2 bg-slate-200 dark:bg-slate-700 rounded-full font-medium"
           >
             Go Back
@@ -69,7 +81,10 @@ export default function DailyStudyContent() {
         <div className="flex justify-between items-center mb-6 max-w-lg mx-auto">
           <span className="text-sm font-medium text-slate-500">Learning {studyWords.length} random words</span>
           <button
-            onClick={() => setSelectedAmount(null)}
+            onClick={() => {
+              setSelectedAmount(null);
+              setActiveSession(null);
+            }}
             className="text-xs px-3 py-1 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-full transition-colors"
           >
             Change Amount
